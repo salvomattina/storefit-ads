@@ -61,7 +61,9 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 .h-otp{text-align:center}
 
 /* LISTA */
-.lista{display:flex;flex-direction:column;gap:6px;margin-top:0}
+.lista-wrap{display:flex;flex-direction:column;gap:0}
+.lista{display:flex;flex-direction:column;gap:6px}
+.gruppo-wrap{display:flex;flex-direction:column;gap:6px;margin-bottom:6px}
 
 /* RIGA */
 .riga{
@@ -238,9 +240,11 @@ dialog::backdrop{background:rgba(8,30,42,.45)}
     <input type="search" id="cerca" placeholder="Cerca centro…">
     <div class="seg" id="filtri">
       <button data-f="tutti" class="on">Tutti</button>
-      <button data-f="ritardo">Da controllare</button>
       <button data-f="meta">Meta</button>
       <button data-f="google">Google</button>
+      <button data-f="ems">EMS</button>
+      <button data-f="infrabike">Infrabike</button>
+      <button data-f="vacutherm">Vacutherm</button>
     </div>
     <button class="btn btn-primary" id="btn-nuovo" style="display:none">+ Centro</button>
   </div>
@@ -388,9 +392,11 @@ async function eliminaCentroDb(id) {
 function render() {
   const cont = document.getElementById('contenuto');
   let vis = centri.filter(c => c.nome.toLowerCase().includes(ricerca));
-  if(filtro === 'ritardo') vis = vis.filter(c => giorniFa(c.ultimo_check) > 7);
   if(filtro === 'meta') vis = vis.filter(c => (c.piattaforma||'meta') === 'meta');
   if(filtro === 'google') vis = vis.filter(c => c.piattaforma === 'google');
+  if(filtro === 'ems') vis = vis.filter(c => (c.tipo||'ems') === 'ems');
+  if(filtro === 'infrabike') vis = vis.filter(c => c.tipo === 'infrabike');
+  if(filtro === 'vacutherm') vis = vis.filter(c => c.tipo === 'vacutherm');
   vis.sort((a,b) => {
     const tipoOrd = {ems:0, infrabike:1, vacutherm:2};
     const ta = tipoOrd[a.tipo||'ems'] ?? 3;
@@ -415,19 +421,26 @@ function render() {
 
   // Raggruppa per tipo
   const gruppiLabel = {ems:'EMS', infrabike:'Infrabike', vacutherm:'Vacutherm'};
+  const mostraGruppi = filtro === 'tutti' || filtro === 'meta' || filtro === 'google';
   let listaHtml = '';
-  let tipoCorrente = null;
-  for(const c of vis) {
-    const tipo = c.tipo || 'ems';
-    // Solo per filtri non-piattaforma mostra gruppi
-    if(filtro !== 'meta' && filtro !== 'google' && filtro !== 'ritardo') {
-      if(tipo !== tipoCorrente) {
-        tipoCorrente = tipo;
-        const label = gruppiLabel[tipo] || tipo.toUpperCase();
-        listaHtml += `<div class="gruppo-header">${label}</div>`;
-      }
+
+  if(mostraGruppi) {
+    // Raggruppa in sezioni separate
+    const gruppi = {};
+    for(const c of vis) {
+      const t = c.tipo || 'ems';
+      if(!gruppi[t]) gruppi[t] = [];
+      gruppi[t].push(c);
     }
-    listaHtml += rigaHtml(c, aperti.has(c.id));
+    const ordineGruppi = ['ems','infrabike','vacutherm'];
+    for(const t of ordineGruppi) {
+      if(!gruppi[t] || !gruppi[t].length) continue;
+      const label = gruppiLabel[t] || t.toUpperCase();
+      listaHtml += `<div class="gruppo-header">${label}</div>`;
+      listaHtml += `<div class="lista">${gruppi[t].map(c => rigaHtml(c, aperti.has(c.id))).join('')}</div>`;
+    }
+  } else {
+    listaHtml = `<div class="lista">${vis.map(c => rigaHtml(c, aperti.has(c.id))).join('')}</div>`;
   }
 
   cont.innerHTML = `
@@ -436,7 +449,7 @@ function render() {
       <span class="h-otp">OTP</span><span>Piatt.</span><span>Tipo</span><span>Budget</span><span>Ultimo controllo</span>
       <span class="h-azioni">Azioni</span>
     </div>
-    <div class="lista">${listaHtml}</div>
+    <div class="lista-wrap">${listaHtml}</div>
   `;
 }
 
