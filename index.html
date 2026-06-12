@@ -51,7 +51,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 /* INTESTAZIONE COLONNE */
 .hdrs{
   display:grid;gap:10px;padding:10px 16px;
-  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 120px 90px;
+  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 130px;
   font-size:10px;text-transform:uppercase;letter-spacing:.7px;
   color:var(--ink-soft);font-weight:700;
   background:var(--bg);margin-bottom:20px;
@@ -83,7 +83,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 
 .rm{
   display:grid;gap:10px;padding:12px 16px;cursor:pointer;align-items:center;
-  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 120px 90px;
+  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 130px;
 }
 .rm:hover{background:linear-gradient(90deg,#fafdff 0%,#fff 100%)}
 
@@ -140,7 +140,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 .dc b{display:block;font-size:12.5px;color:var(--ink);font-weight:600}
 .gg{font-size:11px;margin-top:1px}
 .gg.ok{color:var(--verde)}.gg.warn{color:var(--arancio)}.gg.late{color:var(--rosso);font-weight:700}
-.ar{display:flex;gap:5px;justify-content:flex-end}
+
 .mini{
   border:1px solid var(--line);background:var(--card);border-radius:7px;
   padding:5px 10px;font-size:11px;cursor:pointer;color:var(--ink-soft);
@@ -259,7 +259,7 @@ dialog::backdrop{background:rgba(8,30,42,.45)}
   <div class="hdrs">
     <span>Centro</span><span>Stato</span><span>Pagamento</span>
     <span class="h-otp">OTP</span><span>Piatt.</span><span>Tipo</span><span>Budget</span><span>Ultimo controllo</span>
-    <span class="h-azioni">Azioni</span>
+
   </div>
   <div id="contenuto">
     <div class="loading">Caricamento centri…</div>
@@ -467,7 +467,7 @@ function rigaHtml(c, aperta) {
   const budget = c.budget || 0;
   const notaPreview = nota ? `<span class="nota-preview" title="${esc(nota)}">📝 ${esc(nota)}</span>` : '';
   const budgetBadge = budget > 0
-    ? `<span class="budget-badge">€${budget}/d</span>`
+    ? `<span class="budget-badge">€${budget}</span>`
     : '<span class="budget-badge budget-zero">–</span>';
   const piattaforma = c.piattaforma || 'meta';
   const tipo = c.tipo || 'ems';
@@ -555,11 +555,14 @@ function rigaHtml(c, aperta) {
         <span class="gg ${ggClasse}">${ggTxt}</span>
       </div>
       <div class="col-meta">${statoBadge}${pagBadge}${piattBadge}${tipoBadge}<span class="gg ${ggClasse}">${ggTxt}</span></div>
-      <div class="ar">${azioneBtn}</div>
+
     </div>
     <div class="det">
       ${detCampi}
-      <div class="log-title">Storico azioni</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="log-title" style="margin-bottom:0">Storico azioni</div>
+        ${isAdmin?`<button class="mini" onclick="apriAzione('${c.id}')">+ Azione</button>`:''}
+      </div>
       <div class="log">${logHtml}</div>
       ${detFooter}
     </div>
