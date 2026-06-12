@@ -54,8 +54,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
   grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 120px 90px;
   font-size:10px;text-transform:uppercase;letter-spacing:.7px;
   color:var(--ink-soft);font-weight:700;
-  border-radius:10px 10px 0 0;background:var(--bg);
-  border:1px solid var(--line);border-bottom:none;
+  background:transparent;margin-bottom:4px;
 }
 .h-azioni{text-align:right}
 .h-otp{text-align:center}
@@ -101,11 +100,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 .b-infrabike{background:#dcfce7;color:#166534}
 .b-vacu{background:#f5f3ff;color:#5b21b6}
 .gruppo-header{
-  padding:10px 16px 6px;font-size:10px;text-transform:uppercase;
+  padding:6px 4px 6px;font-size:10px;text-transform:uppercase;
   letter-spacing:.8px;font-weight:700;color:var(--ink-soft);
-  display:flex;align-items:center;gap:8px;margin-top:16px;
+  display:flex;align-items:center;gap:8px;margin-top:20px;
 }
-.gruppo-header:first-child{margin-top:0}
+.gruppo-header:first-of-type{margin-top:0}
+.lista-wrap>.gruppo-header:first-child{margin-top:0}
 .gruppo-header::after{content:'';flex:1;height:1px;background:var(--line)}
 .budget-badge{
   display:inline-flex;align-items:center;gap:3px;
@@ -251,6 +251,11 @@ dialog::backdrop{background:rgba(8,30,42,.45)}
 </div>
 
 <main>
+  <div class="hdrs">
+    <span>Centro</span><span>Stato</span><span>Pagamento</span>
+    <span class="h-otp">OTP</span><span>Piatt.</span><span>Tipo</span><span>Budget</span><span>Ultimo controllo</span>
+    <span class="h-azioni">Azioni</span>
+  </div>
   <div id="contenuto">
     <div class="loading">Caricamento centri…</div>
   </div>
@@ -443,14 +448,7 @@ function render() {
     listaHtml = `<div class="lista">${vis.map(c => rigaHtml(c, aperti.has(c.id))).join('')}</div>`;
   }
 
-  cont.innerHTML = `
-    <div class="hdrs">
-      <span>Centro</span><span>Stato</span><span>Pagamento</span>
-      <span class="h-otp">OTP</span><span>Piatt.</span><span>Tipo</span><span>Budget</span><span>Ultimo controllo</span>
-      <span class="h-azioni">Azioni</span>
-    </div>
-    <div class="lista-wrap">${listaHtml}</div>
-  `;
+  cont.innerHTML = `<div class="lista-wrap">${listaHtml}</div>`;
 }
 
 function rigaHtml(c, aperta) {
