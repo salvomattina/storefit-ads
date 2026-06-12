@@ -446,9 +446,9 @@ function rigaHtml(c, aperta) {
   const ggClasse = gg > 7 ? 'late' : gg > 3 ? 'warn' : 'ok';
   const ggTxt = gg === 0 ? 'oggi' : gg === 1 ? 'ieri' : gg === 999 ? 'mai' : gg+' giorni fa';
   const ultimaAzione = c.log && c.log.length ? c.log[c.log.length-1].testo : '';
-  const notaPreview = nota ? `<span class="nota-preview" title="${esc(nota)}">📝 ${esc(nota)}</span>` : '';
-  const budget = c.budget || 0;
   const nota = c.note || '';
+  const budget = c.budget || 0;
+  const notaPreview = nota ? `<span class="nota-preview" title="${esc(nota)}">📝 ${esc(nota)}</span>` : '';
   const budgetBadge = budget > 0
     ? `<span class="budget-badge">€${budget}/d</span>`
     : '<span class="budget-badge budget-zero">–</span>';
