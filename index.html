@@ -448,10 +448,10 @@ function rigaHtml(c, aperta) {
   const ultimaAzione = c.log && c.log.length ? c.log[c.log.length-1].testo : '';
   const notaPreview = nota ? `<span class="nota-preview" title="${esc(nota)}">📝 ${esc(nota)}</span>` : '';
   const budget = c.budget || 0;
+  const nota = c.note || '';
   const budgetBadge = budget > 0
     ? `<span class="budget-badge">€${budget}/d</span>`
     : '<span class="budget-badge budget-zero">–</span>';
-  const nota = c.note || '';
   const piattaforma = c.piattaforma || 'meta';
   const tipo = c.tipo || 'ems';
   const piattBadge = piattaforma==='google'
