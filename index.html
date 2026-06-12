@@ -51,7 +51,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 /* INTESTAZIONE COLONNE */
 .hdrs{
   display:grid;gap:10px;padding:8px 16px;
-  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 120px 90px;
+  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 120px 90px;
   font-size:10px;text-transform:uppercase;letter-spacing:.7px;
   color:var(--ink-soft);font-weight:700;
   border-radius:10px 10px 0 0;background:var(--bg);
@@ -79,7 +79,7 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 
 .rm{
   display:grid;gap:10px;padding:12px 16px;cursor:pointer;align-items:center;
-  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 120px 90px;
+  grid-template-columns:minmax(140px,1.4fr) 80px 110px 44px 70px 80px 70px 120px 90px;
 }
 .rm:hover{background:linear-gradient(90deg,#fafdff 0%,#fff 100%)}
 
@@ -98,6 +98,35 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
 .b-ems{background:#f1f5f9;color:#475569}
 .b-infrabike{background:#dcfce7;color:#166534}
 .b-vacu{background:#f5f3ff;color:#5b21b6}
+.gruppo-header{
+  padding:10px 16px 6px;font-size:10px;text-transform:uppercase;
+  letter-spacing:.8px;font-weight:700;color:var(--ink-soft);
+  display:flex;align-items:center;gap:8px;margin-top:16px;
+}
+.gruppo-header:first-child{margin-top:0}
+.gruppo-header::after{content:'';flex:1;height:1px;background:var(--line)}
+.budget-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;
+  border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;
+}
+.budget-zero{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0}
+.nota-preview{
+  display:inline-block;background:#fefce8;color:#854d0e;
+  border:1px solid #fef08a;border-radius:5px;padding:1px 6px;
+  font-size:10px;margin-top:3px;max-width:260px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.nota-area{
+  width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;
+  font-size:12px;font-family:inherit;resize:vertical;min-height:55px;
+  background:var(--card);color:var(--ink);transition:border-color .12s;
+}
+.nota-area:focus{border-color:var(--blu);outline:none}
+.budget-input{
+  width:110px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+  font-size:13px;background:var(--card);color:var(--ink);
+}
 
 .otp{font-size:11px;color:var(--ink-soft);text-align:center;font-weight:500}
 .otp.no{color:var(--rosso);font-weight:700}
@@ -181,7 +210,7 @@ dialog::backdrop{background:rgba(8,30,42,.45)}
   .rm{grid-template-columns:1fr auto;grid-template-areas:"nome ar" "meta meta"}
   .rm>.nome{grid-area:nome}
   .rm>.ar{grid-area:ar}
-  .col-stato,.col-pag,.col-otp,.col-piatt,.col-tipo,.col-data{display:none}
+  .col-stato,.col-pag,.col-otp,.col-piatt,.col-tipo,.col-budget,.col-data{display:none}
   .col-meta{grid-area:meta;display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding-top:4px}
 }
 @media(min-width:801px){.col-meta{display:none}}
@@ -254,6 +283,9 @@ dialog::backdrop{background:rgba(8,30,42,.45)}
     </div>
     <div class="campo"><label>Tipo</label>
       <select id="nuovo-tipo"><option value="ems">EMS</option><option value="infrabike">Infrabike</option><option value="vacutherm">Vacutherm</option></select>
+    </div>
+    <div class="campo"><label>Budget €/giorno</label>
+      <input type="text" id="nuovo-budget" placeholder="Es: 15" style="width:120px">
     </div>
     <div class="dlg-act">
       <button class="btn btn-ghost" id="nuovo-annulla">Annulla</button>
@@ -332,7 +364,8 @@ async function salvacentro(c) {
   const payload = {
     nome: c.nome, stato: c.stato, pagamento: c.pagamento,
     otp: c.otp, ultimo_check: c.ultimo_check, log: c.log,
-    piattaforma: c.piattaforma || 'meta', tipo: c.tipo || 'ems'
+    piattaforma: c.piattaforma || 'meta', tipo: c.tipo || 'ems',
+    note: c.note || '', budget: c.budget || 0
   };
   const { error } = await sb.from('centri').update(payload).eq('id', c.id);
   if(error) { toast('⚠ Errore salvataggio'); console.error(error); return; }
@@ -358,7 +391,13 @@ function render() {
   if(filtro === 'ritardo') vis = vis.filter(c => giorniFa(c.ultimo_check) > 7);
   if(filtro === 'meta') vis = vis.filter(c => (c.piattaforma||'meta') === 'meta');
   if(filtro === 'google') vis = vis.filter(c => c.piattaforma === 'google');
-  vis.sort((a,b) => giorniFa(b.ultimo_check) - giorniFa(a.ultimo_check));
+  vis.sort((a,b) => {
+    const tipoOrd = {ems:0, infrabike:1, vacutherm:2};
+    const ta = tipoOrd[a.tipo||'ems'] ?? 3;
+    const tb = tipoOrd[b.tipo||'ems'] ?? 3;
+    if(ta !== tb) return ta - tb;
+    return a.nome.localeCompare(b.nome, 'it');
+  });
 
 
   document.getElementById('btn-nuovo').style.display = isAdmin ? 'inline-flex' : 'none';
@@ -374,13 +413,30 @@ function render() {
 
   const aperti = new Set([...document.querySelectorAll('.riga.aperta')].map(r => r.dataset.id));
 
+  // Raggruppa per tipo
+  const gruppiLabel = {ems:'EMS', infrabike:'Infrabike', vacutherm:'Vacutherm'};
+  let listaHtml = '';
+  let tipoCorrente = null;
+  for(const c of vis) {
+    const tipo = c.tipo || 'ems';
+    // Solo per filtri non-piattaforma mostra gruppi
+    if(filtro !== 'meta' && filtro !== 'google' && filtro !== 'ritardo') {
+      if(tipo !== tipoCorrente) {
+        tipoCorrente = tipo;
+        const label = gruppiLabel[tipo] || tipo.toUpperCase();
+        listaHtml += `<div class="gruppo-header">${label}</div>`;
+      }
+    }
+    listaHtml += rigaHtml(c, aperti.has(c.id));
+  }
+
   cont.innerHTML = `
     <div class="hdrs">
       <span>Centro</span><span>Stato</span><span>Pagamento</span>
-      <span class="h-otp">OTP</span><span>Piatt.</span><span>Tipo</span><span>Ultimo controllo</span>
+      <span class="h-otp">OTP</span><span>Piatt.</span><span>Tipo</span><span>Budget</span><span>Ultimo controllo</span>
       <span class="h-azioni">Azioni</span>
     </div>
-    <div class="lista">${vis.map(c => rigaHtml(c, aperti.has(c.id))).join('')}</div>
+    <div class="lista">${listaHtml}</div>
   `;
 }
 
@@ -390,6 +446,12 @@ function rigaHtml(c, aperta) {
   const ggClasse = gg > 7 ? 'late' : gg > 3 ? 'warn' : 'ok';
   const ggTxt = gg === 0 ? 'oggi' : gg === 1 ? 'ieri' : gg === 999 ? 'mai' : gg+' giorni fa';
   const ultimaAzione = c.log && c.log.length ? c.log[c.log.length-1].testo : '';
+  const notaPreview = nota ? `<span class="nota-preview" title="${esc(nota)}">📝 ${esc(nota)}</span>` : '';
+  const budget = c.budget || 0;
+  const budgetBadge = budget > 0
+    ? `<span class="budget-badge">€${budget}/d</span>`
+    : '<span class="budget-badge budget-zero">–</span>';
+  const nota = c.note || '';
   const piattaforma = c.piattaforma || 'meta';
   const tipo = c.tipo || 'ems';
   const piattBadge = piattaforma==='google'
@@ -445,16 +507,24 @@ function rigaHtml(c, aperta) {
           <option value="infrabike" ${(c.tipo||'ems')==='infrabike'?'selected':''}>Infrabike</option>
           <option value="vacutherm" ${(c.tipo||'ems')==='vacutherm'?'selected':''}>Vacutherm</option>
         </select></div>
+      <div class="campo"><label>Budget €/giorno</label>
+        <input type="text" class="budget-input" value="${c.budget||0}"
+          onchange="modificaCentro('${c.id}','budget',parseFloat(this.value)||0)"></div>
+    </div>
+    <div class="campo" style="margin-bottom:12px">
+      <label>Note interne</label>
+      <textarea class="nota-area" onchange="modificaCentro('${c.id}','note',this.value)">${esc(nota)}</textarea>
     </div>` : `<p class="readonly-note">Accedi come admin per modificare.</p>`;
 
   return `<div class="riga ${classe} ${aperta?'aperta':''}" data-id="${c.id}">
     <div class="rm" onclick="toggleDet(event,'${c.id}')">
-      <div class="nome">${esc(c.nome)}${ultimaAzione&&ultimaAzione!=='Controllo'?`<small>↳ ${esc(ultimaAzione)}</small>`:''}</div>
+      <div class="nome">${esc(c.nome)}${ultimaAzione&&ultimaAzione!=='Controllo'?`<small>↳ ${esc(ultimaAzione)}</small>`:''} ${notaPreview}</div>
       <div class="col-stato">${statoBadge}</div>
       <div class="col-pag">${pagBadge}</div>
       <div class="col-otp otp ${c.otp==='no'?'no':''}">${c.otp==='no'?'OTP ✗':'OTP ✓'}</div>
       <div class="col-piatt">${piattBadge}</div>
       <div class="col-tipo">${tipoBadge}</div>
+      <div class="col-budget">${budgetBadge}</div>
       <div class="col-data dc"><b>${fmtData(c.ultimo_check)}</b><span class="gg ${ggClasse}">${ggTxt}</span></div>
       <div class="col-meta">${statoBadge}${pagBadge}${piattBadge}${tipoBadge}<span class="gg ${ggClasse}">${ggTxt}</span></div>
       <div class="ar">${azioneBtn}</div>
@@ -554,7 +624,8 @@ document.getElementById('nuovo-salva').onclick = async () => {
     otp: document.getElementById('nuovo-otp').value,
     piattaforma: document.getElementById('nuovo-piatt').value,
     tipo: document.getElementById('nuovo-tipo').value,
-    ultimo_check: null, log: []
+    budget: parseFloat(document.getElementById('nuovo-budget').value) || 0,
+    note: '', ultimo_check: null, log: []
   };
   document.getElementById('dlg-nuovo').close();
   const inserito = await inserisciCentro(nuovo);
