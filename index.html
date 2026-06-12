@@ -674,11 +674,11 @@ document.getElementById('nuovo-annulla').onclick = () => document.getElementById
 
 // Login admin
 document.getElementById('btn-admin-toggle').onclick = () => {
-  if(isAdmin) { isAdmin = false; render(); toast('Modalità lettura'); return; }
+  if(isAdmin) { isAdmin = false; render(); return; }
   document.getElementById('login-pwd').value = '';
   document.getElementById('login-err').style.display = 'none';
   document.getElementById('dlg-login').showModal();
-  document.getElementById('login-pwd').focus();
+  setTimeout(() => document.getElementById('login-pwd').focus(), 50);
 };
 document.getElementById('login-entra').onclick = () => {
   const pwd = document.getElementById('login-pwd').value;
@@ -691,7 +691,7 @@ document.getElementById('login-entra').onclick = () => {
   }
 };
 document.getElementById('login-annulla').onclick = () => document.getElementById('dlg-login').close();
-document.getElementById('login-pwd').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-entra').click(); });
+document.getElementById('login-pwd').addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); document.getElementById('login-entra').click(); } });
 
 // Ricerca e filtri
 document.getElementById('cerca').oninput = e => { ricerca = e.target.value.toLowerCase(); render(); };
