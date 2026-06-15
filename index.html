@@ -19,8 +19,8 @@
 body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh}
 
 /* HEADER */
-.hdr{background:linear-gradient(135deg,#03364c 0%,#055a80 55%,#049ddf 130%);padding:16px}
-.hdr-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;max-width:1200px;margin:0 auto}
+.hdr{background:linear-gradient(135deg,#03364c 0%,#055a80 55%,#049ddf 130%);padding:16px 0}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;max-width:1200px;margin:0 auto;padding:0 16px}
 .brand{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
 .logo-img{height:38px;width:auto;display:block;filter:drop-shadow(0 1px 4px rgba(0,0,0,.3))}
 .sotto-logo{color:rgba(255,255,255,.8);font-size:12px;font-weight:500;letter-spacing:.3px}
@@ -553,9 +553,8 @@ function rigaHtml(c, aperta) {
         ${isAdmin
           ? `<input type="date" class="data-input" value="${c.ultimo_check||''}" onchange="event.stopPropagation();cambiaData('${c.id}',this.value)" title="Cambia data">`
           : `<b>${fmtData(c.ultimo_check)}</b>`}
-        <span class="gg ${ggClasse}">${ggTxt}</span>
       </div>
-      <div class="col-meta">${statoBadge}${pagBadge}${piattBadge}${tipoBadge}<span class="gg ${ggClasse}">${ggTxt}</span></div>
+      <div class="col-meta">${statoBadge}${pagBadge}${piattBadge}${tipoBadge}</div>
 
     </div>
     <div class="det">
