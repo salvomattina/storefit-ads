@@ -72,14 +72,12 @@ main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
   background:var(--card);
   border-radius:10px;
   border:1px solid var(--line);
+  border-left:4px solid var(--blu);
   box-shadow:var(--shadow);
   overflow:hidden;
   transition:box-shadow .15s, border-color .15s;
 }
 .riga:hover{box-shadow:var(--shadow-hover);border-color:#c5d0da}
-.riga.ritardo{border-left:4px solid var(--rosso)}
-.riga.attenzione{border-left:4px solid var(--arancio)}
-.riga.fresco{border-left:4px solid var(--verde)}
 
 .rm{
   display:grid;gap:10px;padding:12px 16px;cursor:pointer;align-items:center;
@@ -459,10 +457,6 @@ function render() {
 }
 
 function rigaHtml(c, aperta) {
-  const gg = giorniFa(c.ultimo_check);
-  const classe = gg > 7 ? 'ritardo' : gg > 3 ? 'attenzione' : 'fresco';
-  const ggClasse = gg > 7 ? 'late' : gg > 3 ? 'warn' : 'ok';
-  const ggTxt = gg === 0 ? 'oggi' : gg === 1 ? 'ieri' : gg === 999 ? 'mai' : gg+' giorni fa';
   const ultimaAzione = c.log && c.log.length ? c.log[c.log.length-1].testo : '';
   const nota = c.note || '';
   const budget = c.budget || 0;
@@ -540,7 +534,7 @@ function rigaHtml(c, aperta) {
       <textarea class="nota-area" onchange="modificaCentro('${c.id}','note',this.value)">${esc(nota)}</textarea>
     </div>` : `<p class="readonly-note">Accedi come admin per modificare.</p>`;
 
-  return `<div class="riga ${classe} ${aperta?'aperta':''}" data-id="${c.id}">
+  return `<div class="riga ${aperta?'aperta':''}" data-id="${c.id}">
     <div class="rm" onclick="toggleDet(event,'${c.id}')">
       <div class="nome">${esc(c.nome)} ${c.da_ottimizzare?'<span class="b-ottimizza">⚡ Da ottimizzare</span>':''} ${ultimaAzione&&ultimaAzione!=='Controllo'?`<small>↳ ${esc(ultimaAzione)}</small>`:''} ${notaPreview}</div>
       <div class="col-stato">${statoBadge}</div>
